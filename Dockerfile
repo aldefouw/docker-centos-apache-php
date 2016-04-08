@@ -13,7 +13,7 @@ MAINTAINER Erik Bogaerts <ebo@naqoda.com>
 # -----------------------------------------------------------------------------
 RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
-#RUN yum -y update
+RUN yum -y update
 
 # -----------------------------------------------------------------------------
 # UTC Timezone & Networking
@@ -24,21 +24,22 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 # -----------------------------------------------------------------------------
 # Purge
 # -----------------------------------------------------------------------------
-#RUN rm -rf /etc/ld.so.cache \ 
-#	; rm -rf /sbin/sln \
-#	; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
-#	; rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* \
-#	; > /etc/sysconfig/i18n
+RUN rm -rf /etc/ld.so.cache \ 
+	; rm -rf /sbin/sln \
+	; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
+	; rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* \
+	; > /etc/sysconfig/i18n
 
 # -----------------------------------------------------------------------------
 # Apache
 # -----------------------------------------------------------------------------
 RUN	yum --setopt=tsflags=nodocs -y install \
 	unzip \
-	httpd \
 	mod_ssl \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
+
+RUN	yum --setopt=tsflags=nodocs -y install httpd || true
 
 # -----------------------------------------------------------------------------
 # PHP
