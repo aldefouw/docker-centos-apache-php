@@ -1,1 +1,27 @@
-# docker-centos-apache-php
+# Supported tags and respective `Dockerfile` links
+
+-	[`latest`] Centos 7 + Apache 2.4 + PHP 5.6
+-   [`centos6-apache22-php53`] Centos 6.7 + Apache 2.2 + PHP 5.3
+
+# Info
+Based on official [centos] (https://hub.docker.com/_/centos/) images with addition of:
+
+- Apache
+- PHP
+- PDO
+- MySQL
+- DB2
+- Mbstring
+- Soap
+- GD
+- XML
+- APCu
+
+# Run
+Run this image:
+
+```console
+$ docker run --name mysql \
+	-e MYSQL_ROOT_PASSWORD=root \
+	-d naqoda/centos-apache-php:latest
+```
