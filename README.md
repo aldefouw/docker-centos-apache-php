@@ -21,7 +21,6 @@ Based on official [centos] (https://hub.docker.com/_/centos/) images with additi
 Run this image:
 
 ```console
-$ docker run --name mysql \
-	-e MYSQL_ROOT_PASSWORD=root \
+$ docker run --name centos-apache-php \
 	-d naqoda/centos-apache-php:latest
 ```
