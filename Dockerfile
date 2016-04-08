@@ -11,8 +11,7 @@ MAINTAINER Erik Bogaerts <ebo@naqoda.com>
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
-RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
-	&& rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 RUN yum -y update
 
@@ -40,6 +39,11 @@ RUN	yum --setopt=tsflags=nodocs -y install \
 	mod_ssl \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
+
+# -----------------------------------------------------------------------------
+# PHP
+# -----------------------------------------------------------------------------
+RUN rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
 
 RUN	yum --setopt=tsflags=nodocs -y install \
 	php56w \
