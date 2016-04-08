@@ -38,6 +38,10 @@ RUN	yum --setopt=tsflags=nodocs -y install \
 	unzip \
 	httpd \
 	mod_ssl \
+	&& rm -rf /var/cache/yum/* \
+	&& yum clean all
+
+RUN	yum --setopt=tsflags=nodocs -y install \
 	php56w \
 	php56w-cli \
 	php56w-mysql \
