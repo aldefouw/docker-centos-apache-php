@@ -1,20 +1,47 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.2, PHP 5.5, Ioncube, MYSQL, DB2
+# CentOS-6, Apache 2.2, PHP 5.3, Ioncube
 # 
 # =============================================================================
-FROM centos:centos7
+FROM centos:centos6.7
 
 MAINTAINER Erik Bogaerts <ebo@naqoda.com>
 
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
-RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
-	&& rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+RUN rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-6 \
+	&& rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-6 \
+	&& rpm --import https://dl.iuscommunity.org/pub/ius/IUS-COMMUNITY-GPG-KEY
 
-RUN yum -y update
+# -----------------------------------------------------------------------------
+# Base Install
+# -----------------------------------------------------------------------------
+RUN rpm --rebuilddb \
+	&& yum -y install \
+	tar \
+	centos-release-scl \
+	centos-release-scl-rh \
+	epel-release \
+	https://centos6.iuscommunity.org/ius-release.rpm \
+	vim-minimal-7.4.629-5.el6 \
+	sudo-1.8.6p3-20.el6_7 \
+	openssh-5.3p1-112.el6_7 \
+	openssh-server-5.3p1-112.el6_7 \
+	openssh-clients-5.3p1-112.el6_7 \
+	python-setuptools-0.6.10-3.el6 \
+	yum-plugin-versionlock-1.1.30-30.el6 \
+	&& yum versionlock add \
+	vim-minimal \
+	sudo \
+	openssh \
+	openssh-server \
+	openssh-clients \
+	python-setuptools \
+	yum-plugin-versionlock \
+	&& rm -rf /var/cache/yum/* \
+	&& yum clean all
 
 # -----------------------------------------------------------------------------
 # UTC Timezone & Networking
@@ -34,21 +61,29 @@ RUN rm -rf /etc/ld.so.cache \
 # -----------------------------------------------------------------------------
 # Base Apache, PHP
 # -----------------------------------------------------------------------------
-RUN	yum --setopt=tsflags=nodocs -y install \
+RUN rpm --rebuilddb \
+	&& yum --setopt=tsflags=nodocs -y install \
 	unzip \
+	httpd-2.2.15-47.el6.centos \
+	mod_ssl-2.2.15-47.el6.centos \
+	php \
+	php-cli \
+	php-mysql \
+	php-pdo \
+	php-mbstring \
+	php-soap \
+	php-gd \
+	php-xml \
+	php-apc \
+	&& yum versionlock add \
 	httpd \
 	mod_ssl \
-	php56w \
-	php56w-cli \
-	php56w-mysql \
-	php56w-pdo \
-	php56w-mbstring \
-	php56w-soap \
-	php56w-gd \
-	php56w-xml \
-	php56w-pecl-apcu \
+	php* \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
+
+# Display the contents of the new certificate for reference
+#RUN openssl x509 -in /etc/pki/tls/certs/localhost.crt -text
 
 # -----------------------------------------------------------------------------
 # Install DB2 PDO driver
@@ -70,10 +105,6 @@ RUN cd /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64 \
 
 ENV LD_LIBRARY_PATH /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64/clidriver/lib
 
-COPY modules/ibm_db2.so /usr/lib64/php/modules/ibm_db2.so
-
-COPY modules/pdo_ibm.so /usr/lib64/php/modules/pdo_ibm.so
-	
 RUN echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
 	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
 
@@ -176,9 +207,9 @@ RUN sed -i \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
 	/etc/php.ini
 
-ADD ioncube/ioncube_loader_lin_5.6.so /usr/lib64/php/modules/ioncube_loader_lin_5.6.so
+ADD ioncube/ioncube_loader_lin_5.3.so /usr/lib64/php/modules/ioncube_loader_lin_5.3.so
 RUN echo '[Ioncube]' >> /etc/php.ini
-RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_5.6.so' >> /etc/php.ini 
+RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_5.3.so' >> /etc/php.ini 
 
 # -----------------------------------------------------------------------------
 # Add default service users
@@ -209,9 +240,9 @@ ADD etc/httpd/conf.d/ /etc/httpd/conf.d
 #	/var/www/app/vhost-ssl.conf
 
 # -----------------------------------------------------------------------------
-# Set permissions (app:app-www)
+# Set permissions (app:app-www === 501:502)
 # -----------------------------------------------------------------------------
-RUN chown -R app:app-www /var/www/app \
+RUN chown -R 501:502 /var/www/app \
 	&& chmod 775 /var/www/app \
 	&& chmod g+w /var/www/app/var/session
 
@@ -234,7 +265,6 @@ ENV SERVICE_USER app
 ENV SERVICE_USER_GROUP app-www
 ENV SERVICE_USER_PASSWORD ""
 ENV SUEXECUSERGROUP false
-ENV TERM xterm
 
 EXPOSE 80 443
 
