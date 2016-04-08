@@ -33,13 +33,13 @@ RUN rm -rf /etc/ld.so.cache \
 # -----------------------------------------------------------------------------
 # Apache
 # -----------------------------------------------------------------------------
+RUN	yum --setopt=tsflags=nodocs -y install httpd || true
+
 RUN	yum --setopt=tsflags=nodocs -y install \
 	unzip \
 	mod_ssl \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
-
-RUN	yum --setopt=tsflags=nodocs -y install httpd || true
 
 # -----------------------------------------------------------------------------
 # PHP
