@@ -1,0 +1,17 @@
+<project name="Build Docker container" default="build" basedir=".">
+
+	<target name="build">
+		<exec command="docker login -u ${env.DOCKER_USER}" logoutput="true" passthru="true" />
+
+		<property name="sw.namespace" value="naqoda" override="true" />
+
+		<property name="sw.name" value="centos-apache-php" override="true" />
+		
+		<php returnProperty="git.branch" expression="substr(getenv('GIT_BRANCH'),strrpos(getenv('GIT_BRANCH'),'/')+1)" />
+		<php returnProperty="sw.tag" expression="${git.branch} == 'master' ? 'latest' : ${git.branch}" />
+
+		<exec command="docker build -t ${sw.namespace}/${sw.name}:${sw.tag} ${project.basedir}" logoutput="true" passthru="true" checkreturn="true" />
+
+		<exec command="docker push ${sw.namespace}/${sw.name}:${sw.tag}" logoutput="true" passthru="true" checkreturn="true" />
+	</target>
+</project>
