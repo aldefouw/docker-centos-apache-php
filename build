@@ -1,0 +1,14 @@
+#/bin/bash
+
+read -p "Docker namespace (naqoda): " namespace
+namespace=${namespace:-naqoda}
+
+tag=$(git symbolic-ref --short HEAD)
+
+if [[ $tag == 'master' ]]; then
+	tag='latest'
+fi
+
+docker build -t $namespace/centos-apache-php:$tag .
+
+docker push $namespace/centos-apache-php:$tag 	
