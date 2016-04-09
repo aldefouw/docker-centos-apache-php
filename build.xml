@@ -8,7 +8,7 @@
 		<property name="sw.name" value="centos-apache-php" override="true" />
 		
 		<php returnProperty="git.branch" expression="substr(getenv('GIT_BRANCH'),strrpos(getenv('GIT_BRANCH'),'/')+1)" />
-		<php returnProperty="sw.tag" expression="'${git.branch}' == 'master' ? 'latest' : ${git.branch}" />
+		<php returnProperty="sw.tag" expression="'${git.branch}' == 'master' ? 'latest' : '${git.branch}'" />
 
 		<echo>Branch ${git.branch} : building and pushing ${sw.namespace}/${sw.name}:${sw.tag}</echo>
 		<exec command="docker build -t ${sw.namespace}/${sw.name}:${sw.tag} ${project.basedir}" logoutput="true" passthru="true" checkreturn="true" />
