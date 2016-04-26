@@ -22,13 +22,13 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 	&& echo "NETWORKING=yes" > /etc/sysconfig/network
 
 # -----------------------------------------------------------------------------
-# Purge
+# Purge - this removes localedef
 # -----------------------------------------------------------------------------
-RUN rm -rf /etc/ld.so.cache \ 
-	; rm -rf /sbin/sln \
-	; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
-	; rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* \
-	; > /etc/sysconfig/i18n
+#RUN rm -rf /etc/ld.so.cache \ 
+#	; rm -rf /sbin/sln \
+#	; rm -rf /usr/{{lib,share}/locale,share/{man,doc,info,gnome/help,cracklib,il8n},{lib,lib64}/gconv,bin/localedef,sbin/build-locale-archive} \
+#	; rm -rf /{root,tmp,var/cache/{ldconfig,yum}}/* \
+#	; > /etc/sysconfig/i18n
 
 # -----------------------------------------------------------------------------
 # Apache
@@ -244,6 +244,15 @@ ENV SERVICE_USER_PASSWORD ""
 ENV SUEXECUSERGROUP false
 ENV TERM xterm
 
+# -----------------------------------------------------------------------------
+# Set locale
+# -----------------------------------------------------------------------------
+RUN localedef -i en_GB -f UTF-8 en_GB.UTF-8
+ENV LANG en_GB.UTF-8
+
+# -----------------------------------------------------------------------------
+# Set ports
+# -----------------------------------------------------------------------------
 EXPOSE 80 443
 
 # -----------------------------------------------------------------------------
