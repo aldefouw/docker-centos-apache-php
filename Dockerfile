@@ -86,6 +86,25 @@ RUN echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
 	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
 
 # -----------------------------------------------------------------------------
+# Build Kafka PHP extension
+# -----------------------------------------------------------------------------
+RUN yum install -y gcc \
+	gcc-c++ \
+	php56w-devel
+		
+RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka/archive/master.zip \
+	&& cd /tmp \
+	&& unzip librdkafka-master.zip  \
+	&& cd librdkafka-master \
+	&& ./configure \
+	&& make \
+	&& make install
+		
+RUN pecl install channel://pecl.php.net/rdkafka-alpha
+
+RUN echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
+
+# -----------------------------------------------------------------------------
 # Global Apache configuration changes
 # -----------------------------------------------------------------------------
 RUN sed -i \
