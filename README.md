@@ -16,6 +16,7 @@ Based on official [centos] (https://hub.docker.com/_/centos/) images with additi
 - GD
 - XML
 - APCu
+- Kafka
 
 # Run
 Run this image:
