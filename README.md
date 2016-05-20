@@ -15,7 +15,7 @@ Based on official [centos] (https://hub.docker.com/_/centos/) images with additi
 - Soap
 - GD
 - XML
-- APCu
+- APC
 
 # Run
 Run this image:

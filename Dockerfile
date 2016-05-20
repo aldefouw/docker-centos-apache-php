@@ -6,7 +6,7 @@
 # =============================================================================
 FROM centos:centos6.7
 
-MAINTAINER Erik Bogaerts <ebo@naqoda.com>
+MAINTAINER Naqoda <info@naqoda.com>
 
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
