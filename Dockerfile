@@ -201,6 +201,7 @@ RUN { \
 RUN sed -i \
 	-e 's~^;date.timezone =$~date.timezone = UTC~g' \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
+	-e 's/;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
 	/etc/php.ini
 
 ADD ioncube/ioncube_loader_lin_5.6.so /usr/lib64/php/modules/ioncube_loader_lin_5.6.so
