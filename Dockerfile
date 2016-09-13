@@ -197,23 +197,25 @@ RUN yum -y remove \
 # -----------------------------------------------------------------------------
 # Set default environment variables used to identify the service container
 # -----------------------------------------------------------------------------
-ENV SERVICE_UNIT_APP_GROUP app-1 \
-	SERVICE_UNIT_LOCAL_ID 1 \
-	SERVICE_UNIT_INSTANCE 1
+ENV SERVICE_UNIT_APP_GROUP app-1 
+ENV	SERVICE_UNIT_LOCAL_ID 1
+ENV	SERVICE_UNIT_INSTANCE 1
 
 # -----------------------------------------------------------------------------
 # Set default environment variables used to configure the service container
 # -----------------------------------------------------------------------------
-ENV APACHE_SERVER_ALIAS "" \
-	APACHE_SERVER_NAME app-1.local \ 
-	APP_HOME_DIR /var/www/app \
-	DATE_TIMEZONE UTC \
-	HTTPD /usr/sbin/httpd \
-	SERVICE_USER app \
-	SERVICE_USER_GROUP app-www \
-	SERVICE_USER_PASSWORD "" \
-	SUEXECUSERGROUP false \
-	TERM xterm
+ENV APACHE_SERVER_ALIAS "" 
+ENV	APACHE_SERVER_NAME app-1.local 
+ENV	APP_HOME_DIR /var/www/app
+ENV	DATE_TIMEZONE UTC 
+ENV	HTTPD /usr/sbin/httpd 
+ENV	SERVICE_USER app 
+ENV	SERVICE_USER_GROUP app-www 
+ENV	SERVICE_USER_PASSWORD "" 
+ENV	SUEXECUSERGROUP false 
+ENV	TERM xterm
+ENV DB_MYSQL_PORT_3306_TCP_ADDR ""
+ENV DB_MYSQL_PORT_3306_TCP_PORT ""
 
 # -----------------------------------------------------------------------------
 # Set locale
