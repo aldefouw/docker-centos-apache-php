@@ -88,7 +88,6 @@ RUN sed -i \
 	-e 's~^ServerSignature On$~ServerSignature Off~g' \
 	-e 's~^ServerTokens OS$~ServerTokens Prod~g' \
 	-e 's~^DirectoryIndex \(.*\)$~DirectoryIndex \1 index.php~g' \
-	-e 's~^NameVirtualHost \(.*\)$~#NameVirtualHost \1~g' \
 	-e 's~^IndexOptions \(.*\)$~#IndexOptions \1~g' \
 	-e 's~^IndexIgnore \(.*\)$~#IndexIgnore \1~g' \
 	-e 's~^AddIconByEncoding \(.*\)$~#AddIconByEncoding \1~g' \
