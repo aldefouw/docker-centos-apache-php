@@ -31,7 +31,7 @@ RUN rpm --rebuilddb \
 	openssh-server-5.3p1-112.el6_7 \
 	openssh-clients-5.3p1-112.el6_7 \
 	python-setuptools-0.6.10-3.el6 \
-	yum-plugin-versionlock-1.1.30-30.el6 \
+	yum-plugin-versionlock \
 	&& yum versionlock add \
 	vim-minimal \
 	sudo \
@@ -168,13 +168,6 @@ RUN sed -i \
 	-e '/#<Location \/server-status>/,/#<\/Location>/ s~^#~~' \
 	-e '/<Location \/server-status>/,/<\/Location>/ s~Allow from .example.com~Allow from localhost 127.0.0.1~' \
 	/etc/httpd/conf/httpd.conf
-
-# -----------------------------------------------------------------------------
-# Disable the default SSL Virtual Host
-# -----------------------------------------------------------------------------
-RUN sed -i \
-	-e '/<VirtualHost _default_:443>/,/#<\/VirtualHost>/ s~^~#~' \
-	/etc/httpd/conf.d/ssl.conf
 
 # -----------------------------------------------------------------------------
 # Apache tuning
