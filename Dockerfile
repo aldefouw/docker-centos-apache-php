@@ -72,8 +72,9 @@ RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka
 	&& cd librdkafka-master \
 	&& ./configure \
 	&& make \
-	&& make install \
-	&& pecl install channel://pecl.php.net/rdkafka-alpha \
+	&& make install
+	
+RUN pecl install channel://pecl.php.net/rdkafka-1.0.0 \
 	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
 
 # -----------------------------------------------------------------------------
