@@ -1,7 +1,7 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.2, PHP 5.6, Ioncube, MYSQL, DB2
+# CentOS-7, Apache 2.2, PHP 7.0, Ioncube, MYSQL, DB2
 # 
 # =============================================================================
 FROM centos:centos7
@@ -23,16 +23,16 @@ RUN	yum -y update \
 	gcc-c++ \
 	httpd \
 	mod_ssl \
-	php56w \
-	php56w-cli \
-	php56w-devel \
-	php56w-mysql \
-	php56w-pdo \
-	php56w-mbstring \
-	php56w-soap \
-	php56w-gd \
-	php56w-xml \
-	php56w-pecl-apcu \
+	php70w \
+	php70w-cli \
+	php70w-devel \
+	php70w-mysql \
+	php70w-pdo \
+	php70w-mbstring \
+	php70w-soap \
+	php70w-gd \
+	php70w-xml \
+	php70w-pecl-apcu \
 	unzip \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
@@ -61,7 +61,7 @@ RUN mkdir /opt/ibm \
 	&& echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
 	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
 
-COPY modules/php56/* /usr/lib64/php/modules/
+COPY modules/php70/* /usr/lib64/php/modules/
 
 # -----------------------------------------------------------------------------
 # Build Kafka PHP extension
@@ -74,7 +74,7 @@ RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka
 	&& make \
 	&& make install
 	
-RUN pecl install channel://pecl.php.net/rdkafka-1.0.0 \
+RUN pecl install channel://pecl.php.net/rdkafka-2.0.0 \
 	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
 
 # -----------------------------------------------------------------------------
@@ -154,9 +154,9 @@ RUN sed -i \
 # -----------------------------------------------------------------------------
 # PHP Ioncube
 # -----------------------------------------------------------------------------
-ADD ioncube/ioncube_loader_lin_5.6.so /usr/lib64/php/modules/ioncube_loader_lin_5.6.so
+ADD ioncube/ioncube_loader_lin_7.0.so /usr/lib64/php/modules/ioncube_loader_lin_7.0.so
 RUN echo '[Ioncube]' >> /etc/php.ini
-RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_5.6.so' >> /etc/php.ini 
+RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.0.so' >> /etc/php.ini 
 
 # -----------------------------------------------------------------------------
 # Add default service users
