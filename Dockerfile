@@ -61,7 +61,7 @@ RUN mkdir /opt/ibm \
 	&& echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
 	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
 
-COPY modules/* /usr/lib64/php/modules/
+COPY modules/php56/* /usr/lib64/php/modules/
 
 # -----------------------------------------------------------------------------
 # Build Kafka PHP extension
