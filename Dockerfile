@@ -8,6 +8,8 @@ FROM centos:centos6.7
 
 MAINTAINER Naqoda <info@naqoda.com>
 
+ARG uid=1000
+
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
@@ -116,6 +118,7 @@ RUN sed -i \
 	-e 's~^ServerTokens OS$~ServerTokens Prod~g' \
 	-e 's~^DirectoryIndex \(.*\)$~DirectoryIndex \1 index.php~g' \
 	-e 's~^NameVirtualHost \(.*\)$~#NameVirtualHost \1~g' \
+	-e 's~^Group apache$~Group app~g' \
 	/etc/httpd/conf/httpd.conf
 
 # -----------------------------------------------------------------------------
@@ -181,6 +184,8 @@ RUN sed -i \
 	-e 's~^MaxRequestsPerChild \(.*\)$~MaxRequestsPerChild 1000~g' \
 	/etc/httpd/conf/httpd.conf
 	
+RUN echo "umask 002" >> /etc/sysconfig/httpd
+	
 # -----------------------------------------------------------------------------
 # Limit process for the application user
 # -----------------------------------------------------------------------------
@@ -188,8 +193,8 @@ RUN { \
 		echo ''; \
 		echo $'apache\tsoft\tnproc\t30'; \
 		echo $'apache\thard\tnproc\t50'; \
-		echo $'app-www\tsoft\tnproc\t30'; \
-		echo $'app-www\thard\tnproc\t50'; \
+		echo $'app\tsoft\tnproc\t30'; \
+		echo $'app\thard\tnproc\t50'; \
 	} >> /etc/security/limits.conf
 
 # -----------------------------------------------------------------------------
@@ -207,10 +212,8 @@ RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_5.3.so' >> 
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
-RUN useradd -u 501 -d /var/www/app -m app \
-	&& useradd -u 502 -d /var/www/app -M -s /sbin/nologin -G app app-www \
-	&& usermod -a -G app-www app \
-	&& usermod -a -G app-www apache
+RUN useradd -u ${uid} -d /var/www/app -m app \
+	&& usermod -a -G app apache
 
 # -----------------------------------------------------------------------------
 # Add a symbolic link to the app users home within the home directory &
@@ -233,11 +236,11 @@ ADD etc/httpd/conf.d/ /etc/httpd/conf.d
 #	/var/www/app/vhost-ssl.conf
 
 # -----------------------------------------------------------------------------
-# Set permissions (app:app-www === 501:502)
+# Set permissions
 # -----------------------------------------------------------------------------
-RUN chown -R 501:502 /var/www/app \
-	&& chmod 775 /var/www/app \
-	&& chmod g+w /var/www/app/var/session
+RUN chown -R app:app /var/www/app \
+	&& chmod 770 /var/www/app \
+	&& chmod -R g+w /var/www/app/var
 
 # -----------------------------------------------------------------------------
 # Set default environment variables used to identify the service container
@@ -255,7 +258,7 @@ ENV APP_HOME_DIR /var/www/app
 ENV DATE_TIMEZONE UTC
 ENV HTTPD /usr/sbin/httpd
 ENV SERVICE_USER app
-ENV SERVICE_USER_GROUP app-www
+ENV SERVICE_USER_GROUP app
 ENV SERVICE_USER_PASSWORD ""
 ENV SUEXECUSERGROUP false
 
