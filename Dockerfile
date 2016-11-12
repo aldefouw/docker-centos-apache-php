@@ -8,6 +8,8 @@ FROM centos:centos7
 
 MAINTAINER Naqoda <info@naqoda.com>
 
+ARG uid=1000
+
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
@@ -89,6 +91,7 @@ RUN sed -i \
 	-e 's~^ServerSignature On$~ServerSignature Off~g' \
 	-e 's~^ServerTokens OS$~ServerTokens Prod~g' \
 	-e 's~^DirectoryIndex \(.*\)$~DirectoryIndex \1 index.php~g' \
+	-e 's~^Group apache$~Group app~g' \
 	-e 's~^IndexOptions \(.*\)$~#IndexOptions \1~g' \
 	-e 's~^IndexIgnore \(.*\)$~#IndexIgnore \1~g' \
 	-e 's~^AddIconByEncoding \(.*\)$~#AddIconByEncoding \1~g' \
@@ -138,8 +141,8 @@ RUN { \
 		echo ''; \
 		echo $'apache\tsoft\tnproc\t30'; \
 		echo $'apache\thard\tnproc\t50'; \
-		echo $'app-www\tsoft\tnproc\t30'; \
-		echo $'app-www\thard\tnproc\t50'; \
+		echo $'app\tsoft\tnproc\t30'; \
+		echo $'app\thard\tnproc\t50'; \
 	} >> /etc/security/limits.conf
 
 # -----------------------------------------------------------------------------
@@ -161,10 +164,8 @@ RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.0.so' >> 
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
-RUN useradd -u 501 -d /var/www/app -m app \
-	&& useradd -u 502 -d /var/www/app -M -s /sbin/nologin -G app app-www \
-	&& usermod -a -G app-www app \
-	&& usermod -a -G app-www apache
+RUN useradd -u ${uid} -d /var/www/app -m app \
+	&& usermod -a -G app apache
 
 # -----------------------------------------------------------------------------
 # Add a symbolic link to the app users home within the home directory &
@@ -179,11 +180,11 @@ RUN ln -s /var/www/app /home/app \
 ADD etc/httpd/conf.d/ /etc/httpd/conf.d
 
 # -----------------------------------------------------------------------------
-# Set permissions (app:app-www)
+# Set permissions
 # -----------------------------------------------------------------------------
-RUN chown -R app:app-www /var/www/app \
-	&& chmod 775 /var/www/app \
-	&& chmod g+w /var/www/app/var/session
+RUN chown -R app:app /var/www/app \
+	&& chmod 770 /var/www/app \
+	&& chmod -R g+w /var/www/app/var
 
 # -----------------------------------------------------------------------------
 # Remove packages
@@ -210,7 +211,7 @@ ENV	APP_HOME_DIR /var/www/app
 ENV	DATE_TIMEZONE UTC 
 ENV	HTTPD /usr/sbin/httpd 
 ENV	SERVICE_USER app 
-ENV	SERVICE_USER_GROUP app-www 
+ENV	SERVICE_USER_GROUP app 
 ENV	SERVICE_USER_PASSWORD "" 
 ENV	SUEXECUSERGROUP false 
 ENV	TERM xterm
