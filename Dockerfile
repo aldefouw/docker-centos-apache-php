@@ -36,6 +36,7 @@ RUN	yum -y update \
 	php70w-xml \
 	php70w-pecl-apcu \
 	unzip \
+	libXrender fontconfig libXext \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
@@ -160,6 +161,15 @@ RUN sed -i \
 ADD ioncube/ioncube_loader_lin_7.0.so /usr/lib64/php/modules/ioncube_loader_lin_7.0.so
 RUN echo '[Ioncube]' >> /etc/php.ini
 RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.0.so' >> /etc/php.ini 
+
+# -----------------------------------------------------------------------------
+# https://wkhtmltopdf.org (with dependencies: libXrender fontconfig libXext)
+# -----------------------------------------------------------------------------
+RUN cd /usr/local/bin \
+	&& curl -fSLo wkhtmltox.tar.xz https://downloads.wkhtmltopdf.org/0.12/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+	&& tar -xf wkhtmltox.tar.xz \
+	&& rm wkhtmltox.tar.xz \
+	&& ln -s /usr/local/bin/wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
 # -----------------------------------------------------------------------------
 # Add default service users
