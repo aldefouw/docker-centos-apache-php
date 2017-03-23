@@ -36,7 +36,7 @@ RUN	yum -y update \
 	php70w-xml \
 	php70w-pecl-apcu \
 	unzip \
-	libXrender fontconfig libXext \
+	libXrender fontconfig libXext urw-fonts \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
@@ -163,7 +163,8 @@ RUN echo '[Ioncube]' >> /etc/php.ini
 RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.0.so' >> /etc/php.ini 
 
 # -----------------------------------------------------------------------------
-# https://wkhtmltopdf.org (with dependencies: libXrender fontconfig libXext)
+# https://wkhtmltopdf.org
+# with dependencies: libXrender fontconfig libXext urw-fonts
 # -----------------------------------------------------------------------------
 RUN cd /usr/local/bin \
 	&& curl -fSLo wkhtmltox.tar.xz https://downloads.wkhtmltopdf.org/0.12/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
