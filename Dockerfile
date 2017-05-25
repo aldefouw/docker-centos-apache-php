@@ -152,6 +152,7 @@ RUN { \
 RUN sed -i \
 	-e 's~^;date.timezone =$~date.timezone = UTC~g' \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
+	-e 's~^; max_input_vars =$~max_input_vars = 2000~g' \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
 	/etc/php.ini
 
