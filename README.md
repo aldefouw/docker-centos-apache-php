@@ -18,6 +18,7 @@ Based on official [centos] (https://hub.docker.com/_/centos/) images with additi
 - XML
 - APCu
 - Kafka
+- wkhtmltopdf
 
 # Run
 Run this image:
