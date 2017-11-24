@@ -9,6 +9,7 @@ FROM centos:centos7
 MAINTAINER Naqoda <info@naqoda.com>
 
 ARG uid=1000
+ARG gid=1000
 
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
@@ -105,20 +106,6 @@ RUN sed -i \
 	-e 's~^LanguagePriority \(.*\)$~#LanguagePriority \1~g' \
 	-e 's~^ForceLanguagePriority \(.*\)$~#ForceLanguagePriority \1~g' \
 	-e 's~^AddLanguage \(.*\)$~#AddLanguage \1~g' \
-	-e 's~^\(LoadModule .*\)$~#\1~g' \
-	-e 's~^\(#LoadModule version_module modules/mod_version.so\)$~\1\n#LoadModule reqtimeout_module modules/mod_reqtimeout.so~g' \
-	-e 's~^#LoadModule mime_module ~LoadModule mime_module ~g' \
-	-e 's~^#LoadModule log_config_module ~LoadModule log_config_module ~g' \
-	-e 's~^#LoadModule setenvif_module ~LoadModule setenvif_module ~g' \
-	-e 's~^#LoadModule status_module ~LoadModule status_module ~g' \
-	-e 's~^#LoadModule authz_host_module ~LoadModule authz_host_module ~g' \
-	-e 's~^#LoadModule dir_module ~LoadModule dir_module ~g' \
-	-e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
-	-e 's~^#LoadModule rewrite_module ~LoadModule rewrite_module ~g' \
-	-e 's~^#LoadModule expires_module ~LoadModule expires_module ~g' \
-	-e 's~^#LoadModule deflate_module ~LoadModule deflate_module ~g' \
-	-e 's~^#LoadModule headers_module ~LoadModule headers_module ~g' \
-	-e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
 	-e '/#<Location \/server-status>/,/#<\/Location>/ s~^#~~' \
 	-e '/<Location \/server-status>/,/<\/Location>/ s~Allow from .example.com~Allow from localhost 127.0.0.1~' \
 	-e 's~^StartServers \(.*\)$~StartServers 3~g' \
@@ -128,6 +115,18 @@ RUN sed -i \
 	-e 's~^MaxClients \(.*\)$~MaxClients 10~g' \
 	-e 's~^MaxRequestsPerChild \(.*\)$~MaxRequestsPerChild 1000~g' \
 	/etc/httpd/conf/httpd.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-dav.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-lua.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-proxy.conf
 
 # -----------------------------------------------------------------------------
 # Disable the default SSL Virtual Host
@@ -155,6 +154,7 @@ RUN sed -i \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
 	-e 's~^; max_input_vars.*$~max_input_vars = 2000~g' \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
+	-e 's~^upload_max_filesize.*$~upload_max_filesize = 8M~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
@@ -183,8 +183,9 @@ RUN cd /usr/local/bin \
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
-RUN useradd -u ${uid} -d /var/www/app -m app \
-	&& usermod -a -G app apache
+RUN if ! grep -q ":${gid}:" /etc/group;then groupadd -g ${gid} app;fi
+RUN useradd -u ${uid} -d /var/www/app -m -g ${gid} app \
+	&& usermod -a -G ${gid} apache
 
 # -----------------------------------------------------------------------------
 # Add a symbolic link to the app users home within the home directory &
@@ -201,7 +202,7 @@ ADD etc/httpd/conf.d/ /etc/httpd/conf.d
 # -----------------------------------------------------------------------------
 # Set permissions
 # -----------------------------------------------------------------------------
-RUN chown -R app:app /var/www/app \
+RUN chown -R app:${gid} /var/www/app \
 	&& chmod 770 /var/www/app \
 	&& chmod -R g+w /var/www/app/var
 
