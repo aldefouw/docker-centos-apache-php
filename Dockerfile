@@ -155,6 +155,7 @@ RUN sed -i \
 	-e 's~^; max_input_vars.*$~max_input_vars = 2000~g' \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
 	-e 's~^upload_max_filesize.*$~upload_max_filesize = 8M~g' \
+	-e 's~^post_max_size.*$~post_max_size = 12M~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
