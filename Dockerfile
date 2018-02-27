@@ -1,7 +1,7 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.2, PHP 7.1, Ioncube, MYSQL, DB2
+# CentOS-7, Apache 2.4, PHP 7.1, Ioncube, MYSQL
 # 
 # =============================================================================
 FROM centos:centos7
