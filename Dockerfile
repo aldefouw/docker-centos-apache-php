@@ -1,7 +1,7 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.2, PHP 5.6, Ioncube, MYSQL, DB2
+# CentOS-7, Apache 2.4, PHP 7.1, Ioncube, MYSQL
 # 
 # =============================================================================
 FROM centos:centos7
@@ -9,6 +9,7 @@ FROM centos:centos7
 MAINTAINER Naqoda <info@naqoda.com>
 
 ARG uid=1000
+ARG gid=1000
 
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
@@ -25,17 +26,19 @@ RUN	yum -y update \
 	gcc-c++ \
 	httpd \
 	mod_ssl \
-	php56w \
-	php56w-cli \
-	php56w-devel \
-	php56w-mysql \
-	php56w-pdo \
-	php56w-mbstring \
-	php56w-soap \
-	php56w-gd \
-	php56w-xml \
-	php56w-pecl-apcu \
+	php71w \
+	php71w-cli \
+	php71w-devel \
+	php71w-mysql \
+	php71w-pdo \
+	php71w-mbstring \
+	php71w-soap \
+	php71w-gd \
+	php71w-xml \
+	php71w-pecl-apcu \
 	unzip \
+	libXrender fontconfig libXext urw-fonts \
+	ImageMagick ImageMagick-devel \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
@@ -48,36 +51,36 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 # -----------------------------------------------------------------------------
 # Install DB2 PDO driver
 # -----------------------------------------------------------------------------
-ENV DB2EXPRESSC_URL https://s3-ap-southeast-1.amazonaws.com/naqoda/downloads/ibm_data_server_driver_package_linuxx64_v10.5.tar.gz
-ENV IBM_DB_HOME /opt/ibm/dsdriver
-ENV LD_LIBRARY_PATH /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64/clidriver/lib
+#ENV DB2EXPRESSC_URL https://s3-ap-southeast-1.amazonaws.com/naqoda/downloads/ibm_data_server_driver_package_linuxx64_v10.5.tar.gz
+#ENV IBM_DB_HOME /opt/ibm/dsdriver
+#ENV LD_LIBRARY_PATH /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64/clidriver/lib
 
-RUN mkdir /opt/ibm \
-    && curl -fSLo /opt/ibm/expc.tar.gz $DB2EXPRESSC_URL  \
-    && cd /opt/ibm && tar xf expc.tar.gz \
-    && rm /opt/ibm/expc.tar.gz \
-	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/ibm_db2_5.3.6_nts.so /usr/lib64/php/modules/ibm_db2.so \
-	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/pdo_ibm_5.3.6_nts.so /usr/lib64/php/modules/pdo_ibm.so \
-	&& cd /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64 \
-    && tar xf ibm_data_server_driver_for_odbc_cli.tar.gz \
-	&& echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
-	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
+#RUN mkdir /opt/ibm \
+#    && curl -fSLo /opt/ibm/expc.tar.gz $DB2EXPRESSC_URL  \
+#    && cd /opt/ibm && tar xf expc.tar.gz \
+#    && rm /opt/ibm/expc.tar.gz \
+#	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/ibm_db2_5.3.6_nts.so /usr/lib64/php/modules/ibm_db2.so \
+#	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/pdo_ibm_5.3.6_nts.so /usr/lib64/php/modules/pdo_ibm.so \
+#	&& cd /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64 \
+#   && tar xf ibm_data_server_driver_for_odbc_cli.tar.gz \
+#	&& echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
+#	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
 
-COPY modules/php56/* /usr/lib64/php/modules/
+#COPY modules/php71/* /usr/lib64/php/modules/
 
 # -----------------------------------------------------------------------------
 # Build Kafka PHP extension
 # -----------------------------------------------------------------------------
-RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka/archive/master.zip \
-	&& cd /tmp \
-	&& unzip librdkafka-master.zip  \
-	&& cd librdkafka-master \
-	&& ./configure \
-	&& make \
-	&& make install
+#RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka/archive/master.zip \
+#	&& cd /tmp \
+#	&& unzip librdkafka-master.zip  \
+#	&& cd librdkafka-master \
+#	&& ./configure \
+#	&& make \
+#	&& make install
 	
-RUN pecl install channel://pecl.php.net/rdkafka-1.0.0 \
-	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
+#RUN pecl install channel://pecl.php.net/rdkafka-2.0.0 \
+#	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
 
 # -----------------------------------------------------------------------------
 # Global Apache configuration changes
@@ -103,20 +106,6 @@ RUN sed -i \
 	-e 's~^LanguagePriority \(.*\)$~#LanguagePriority \1~g' \
 	-e 's~^ForceLanguagePriority \(.*\)$~#ForceLanguagePriority \1~g' \
 	-e 's~^AddLanguage \(.*\)$~#AddLanguage \1~g' \
-	-e 's~^\(LoadModule .*\)$~#\1~g' \
-	-e 's~^\(#LoadModule version_module modules/mod_version.so\)$~\1\n#LoadModule reqtimeout_module modules/mod_reqtimeout.so~g' \
-	-e 's~^#LoadModule mime_module ~LoadModule mime_module ~g' \
-	-e 's~^#LoadModule log_config_module ~LoadModule log_config_module ~g' \
-	-e 's~^#LoadModule setenvif_module ~LoadModule setenvif_module ~g' \
-	-e 's~^#LoadModule status_module ~LoadModule status_module ~g' \
-	-e 's~^#LoadModule authz_host_module ~LoadModule authz_host_module ~g' \
-	-e 's~^#LoadModule dir_module ~LoadModule dir_module ~g' \
-	-e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
-	-e 's~^#LoadModule rewrite_module ~LoadModule rewrite_module ~g' \
-	-e 's~^#LoadModule expires_module ~LoadModule expires_module ~g' \
-	-e 's~^#LoadModule deflate_module ~LoadModule deflate_module ~g' \
-	-e 's~^#LoadModule headers_module ~LoadModule headers_module ~g' \
-	-e 's~^#LoadModule alias_module ~LoadModule alias_module ~g' \
 	-e '/#<Location \/server-status>/,/#<\/Location>/ s~^#~~' \
 	-e '/<Location \/server-status>/,/<\/Location>/ s~Allow from .example.com~Allow from localhost 127.0.0.1~' \
 	-e 's~^StartServers \(.*\)$~StartServers 3~g' \
@@ -126,6 +115,18 @@ RUN sed -i \
 	-e 's~^MaxClients \(.*\)$~MaxClients 10~g' \
 	-e 's~^MaxRequestsPerChild \(.*\)$~MaxRequestsPerChild 1000~g' \
 	/etc/httpd/conf/httpd.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-dav.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-lua.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/00-proxy.conf
 
 # -----------------------------------------------------------------------------
 # Disable the default SSL Virtual Host
@@ -151,21 +152,41 @@ RUN { \
 RUN sed -i \
 	-e 's~^;date.timezone =$~date.timezone = UTC~g' \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
+	-e 's~^; max_input_vars.*$~max_input_vars = 4000~g' \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
+	-e 's~^upload_max_filesize.*$~upload_max_filesize = 8M~g' \
+	-e 's~^post_max_size.*$~post_max_size = 12M~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
 # PHP Ioncube
 # -----------------------------------------------------------------------------
-ADD ioncube/ioncube_loader_lin_5.6.so /usr/lib64/php/modules/ioncube_loader_lin_5.6.so
+ADD ioncube/ioncube_loader_lin_7.1.so /usr/lib64/php/modules/ioncube_loader_lin_7.1.so
 RUN echo '[Ioncube]' >> /etc/php.ini
-RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_5.6.so' >> /etc/php.ini 
+RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.1.so' >> /etc/php.ini 
+
+# -----------------------------------------------------------------------------
+# ImageMagick
+# -----------------------------------------------------------------------------
+RUN echo '' | pecl install imagick
+RUN echo "extension=imagick.so" > /etc/php.d/imagick.ini
+
+# -----------------------------------------------------------------------------
+# https://wkhtmltopdf.org
+# with dependencies: libXrender fontconfig libXext urw-fonts
+# -----------------------------------------------------------------------------
+RUN cd /usr/local/bin \
+	&& curl -fSLo wkhtmltox.tar.xz https://downloads.wkhtmltopdf.org/0.12/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz \
+	&& tar -xf wkhtmltox.tar.xz \
+	&& rm wkhtmltox.tar.xz \
+	&& ln -s /usr/local/bin/wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
-RUN useradd -u ${uid} -d /var/www/app -m app \
-	&& usermod -a -G app apache
+RUN if ! grep -q ":${gid}:" /etc/group;then groupadd -g ${gid} app;fi
+RUN useradd -u ${uid} -d /var/www/app -m -g ${gid} app \
+	&& usermod -a -G ${gid} apache
 
 # -----------------------------------------------------------------------------
 # Add a symbolic link to the app users home within the home directory &
@@ -182,7 +203,7 @@ ADD etc/httpd/conf.d/ /etc/httpd/conf.d
 # -----------------------------------------------------------------------------
 # Set permissions
 # -----------------------------------------------------------------------------
-RUN chown -R app:app /var/www/app \
+RUN chown -R app:${gid} /var/www/app \
 	&& chmod 770 /var/www/app \
 	&& chmod -R g+w /var/www/app/var
 
