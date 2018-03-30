@@ -178,7 +178,7 @@ RUN sed -i \
 	-e 's~^expose_php.*$~expose_php = Off~g' \
 	-e 's~^allow_url_fopen.*$~allow_url_fopen = Off~g' \
 	-e 's~^session.cookie_httponly.*$~session.cookie_httponly = On~g' \
-	-e 's~^disable_functions.*$~disable_functions = shell_exec,show_source,popen,fopen_with_path,chdir,dbmopen,dbase_open,filepro,filepro_rowcount,filepro_retrieve,posix_mkfifo~g' \
+	-e 's~^disable_functions.*$~disable_functions = shell_exec,show_source,fopen_with_path,dbmopen,dbase_open,filepro,filepro_rowcount,filepro_retrieve,posix_mkfifo~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
@@ -208,6 +208,21 @@ RUN cd /usr/local/bin \
 	&& rm wkhtmltox.tar.xz \
 	&& ln -s /usr/local/bin/wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
 
+# -----------------------------------------------------------------------------
+# Redis client
+# -----------------------------------------------------------------------------
+RUN curl -fSLo /tmp/phpredis-master.zip https://github.com/phpredis/phpredis/archive/master.zip \
+	&& cd /tmp \
+	&& unzip phpredis-master.zip \
+	&& cd phpredis-master \
+	&& phpize \ 
+	&& ./configure \
+	&& make \
+	&& make install \
+	&& cp /tmp/phpredis-master/modules/redis.so /usr/lib64/php/modules/ \	
+	&& cp /tmp/phpredis-master/rpm/redis.ini /etc/php.d/ \
+	&& rm -fR /tmp/phpredis-master*
+	
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
