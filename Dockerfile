@@ -161,9 +161,13 @@ RUN sed -i \
 # -----------------------------------------------------------------------------
 # PHP Ioncube
 # -----------------------------------------------------------------------------
-ADD ioncube/ioncube_loader_lin_7.1.so /usr/lib64/php/modules/ioncube_loader_lin_7.1.so
+RUN cd /usr/lib64/php/modules \
+	&& curl -fSLo ioncube_loaders_lin_x86-64.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
+	&& tar -xvf ioncube_loaders_lin_x86-64.tar.gz \
+	&& rm ioncube_loaders_lin_x86-64.tar.gz
+	
 RUN echo '[Ioncube]' >> /etc/php.ini
-RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube_loader_lin_7.1.so' >> /etc/php.ini 
+RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube/ioncube_loader_lin_7.1.so' >> /etc/php.ini 
 
 # -----------------------------------------------------------------------------
 # ImageMagick
