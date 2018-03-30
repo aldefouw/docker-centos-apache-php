@@ -128,6 +128,25 @@ RUN sed -i \
 	-e 's~^\(LoadModule .*\)$~#\1~g' \
 	/etc/httpd/conf.modules.d/00-proxy.conf
 
+RUN sed -i \
+	-e 's~^LoadModule suexec_module ~#LoadModule suexec_module ~g' \
+	-e 's~^LoadModule authn_~#LoadModule authn_~g' \
+ 	-e 's~^LoadModule authz_dbd_module ~#LoadModule authz_dbd_module ~g' \
+ 	-e 's~^LoadModule authz_dbm_module ~#LoadModule authz_dbm_module ~g' \
+ 	-e 's~^LoadModule authz_groupfile_module ~#LoadModule authz_groupfile_module ~g' \
+	-e 's~^LoadModule substitute_module ~#LoadModule substitute_module ~g' \
+	-e 's~^LoadModule cache_disk_module ~#LoadModule cache_disk_module ~g' \
+	-e 's~^LoadModule dbd_module ~#LoadModule dbd_module ~g' \
+	-e 's~^LoadModule dumpio_module ~#LoadModule dumpio_module ~g' \
+	-e 's~^LoadModule echo_module ~#LoadModule echo_module ~g' \
+	-e 's~^LoadModule userdir_module ~#LoadModule userdir_module ~g' \
+	-e 's~^LoadModule authz_user_module ~#LoadModule authz_user_module ~g' \
+	/etc/httpd/conf.modules.d/00-base.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/01-cgi.conf
+
 # -----------------------------------------------------------------------------
 # Disable the default SSL Virtual Host
 # -----------------------------------------------------------------------------
@@ -156,6 +175,10 @@ RUN sed -i \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
 	-e 's~^upload_max_filesize.*$~upload_max_filesize = 8M~g' \
 	-e 's~^post_max_size.*$~post_max_size = 12M~g' \
+	-e 's~^expose_php.*$~expose_php = Off~g' \
+	-e 's~^allow_url_fopen.*$~allow_url_fopen = Off~g' \
+	-e 's~^session.cookie_httponly.*$~session.cookie_httponly = On~g' \
+	-e 's~^disable_functions.*$~disable_functions = shell_exec,show_source,popen,fopen_with_path,chdir,dbmopen,dbase_open,filepro,filepro_rowcount,filepro_retrieve,posix_mkfifo~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
