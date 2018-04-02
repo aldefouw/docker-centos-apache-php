@@ -224,6 +224,11 @@ RUN curl -fSLo /tmp/phpredis-master.zip https://github.com/phpredis/phpredis/arc
 	&& rm -fR /tmp/phpredis-master*
 	
 # -----------------------------------------------------------------------------
+# Unoconv
+# -----------------------------------------------------------------------------
+RUN yum -y install unoconv libreoffice-headless
+	
+# -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
 RUN if ! grep -q ":${gid}:" /etc/group;then groupadd -g ${gid} app;fi
