@@ -229,6 +229,14 @@ RUN curl -fSLo /tmp/phpredis-master.zip https://github.com/phpredis/phpredis/arc
 RUN yum -y install unoconv libreoffice-headless
 	
 # -----------------------------------------------------------------------------
+# PDFtk
+# https://www.linuxglobal.com/pdftk-works-on-centos-7/
+# -----------------------------------------------------------------------------
+COPY rpm/pdftk-2.02-1.el7.x86_64.rpm /tmp
+RUN yum -y localinstall /tmp/pdftk-2.02-1.el7.x86_64.rpm && \
+	rm /tmp/pdftk-2.02-1.el7.x86_64.rpm
+	
+# -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
 RUN if ! grep -q ":${gid}:" /etc/group;then groupadd -g ${gid} app;fi
