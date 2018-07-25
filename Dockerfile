@@ -249,7 +249,7 @@ RUN useradd -u ${uid} -d /var/www/app -m -g ${gid} app \
 # Create the initial directory structure
 # -----------------------------------------------------------------------------
 RUN ln -s /var/www/app /home/app \
-	&& mkdir -p /var/www/app/{public_html,var/{log,session}}
+	&& mkdir -p /var/www/app/{public_html,var/{log}}
 
 # -----------------------------------------------------------------------------
 # Virtual hosts configuration
