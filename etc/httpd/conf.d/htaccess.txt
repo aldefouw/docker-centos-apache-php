@@ -1,0 +1,21 @@
+		RewriteBase /
+
+		# Redirect all access to index.php except for assets
+		RewriteRule ^data/ - [L]
+
+		RewriteRule \.js$ - [L]
+		RewriteRule \.css$ - [L]
+		RewriteRule \.css\.map$ - [L]
+		RewriteRule \.png$ - [L]
+		RewriteRule \.jpg$ - [L]
+		RewriteRule \.bmp$ - [L]
+		RewriteRule \.gif$ - [L]
+		RewriteRule \.pdf$ - [L]
+		RewriteRule \.wsdl$ - [L]
+
+		RewriteRule ^robots.txt$ - [L]
+		RewriteRule ^soap\.php$ - [L]
+		RewriteRule ^install\.php$ - [L]
+		RewriteRule ^index\.php$ - [L]
+
+		RewriteRule . /index.php [L]
