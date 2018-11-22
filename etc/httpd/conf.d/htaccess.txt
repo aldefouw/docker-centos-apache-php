@@ -12,6 +12,8 @@ RewriteRule \.bmp$ - [L]
 RewriteRule \.gif$ - [L]
 RewriteRule \.pdf$ - [L]
 RewriteRule \.wsdl$ - [L]
+RewriteRule \.ttf$ - [L]
+RewriteRule \.woff$ - [L]
 
 RewriteRule ^robots.txt$ - [L]
 RewriteRule ^soap\.php$ - [L]
