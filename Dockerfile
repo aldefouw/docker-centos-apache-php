@@ -180,6 +180,7 @@ RUN sed -i \
 	-e 's~^session.cookie_httponly.*$~session.cookie_httponly = On~g' \
 	-e 's~^;session.cookie_secure.*$~session.cookie_secure = On~g' \
 	-e 's~^disable_functions.*$~disable_functions = shell_exec,show_source,fopen_with_path,dbmopen,dbase_open,filepro,filepro_rowcount,filepro_retrieve,posix_mkfifo~g' \
+	-e 's~^session.gc_maxlifetime = 1440$~session.gc_maxlifetime = 28800~g' \
 	/etc/php.ini
 
 # -----------------------------------------------------------------------------
