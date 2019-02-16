@@ -19,5 +19,6 @@ RewriteRule ^robots.txt$ - [L]
 RewriteRule ^soap\.php$ - [L]
 RewriteRule ^install\.php$ - [L]
 RewriteRule ^index\.php$ - [L]
+RewriteRule openapi\.yml$ - [L]
 
 RewriteRule . /index.php [L]
