@@ -1,7 +1,7 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.4, PHP 7.1, Ioncube, MYSQL
+# CentOS-7, Apache 2.4, PHP 7.3, Ioncube, MYSQL
 # 
 # =============================================================================
 FROM centos:centos7
@@ -14,8 +14,8 @@ ARG gid=1000
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
-RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
-	&& rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+RUN yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm epel-release yum-utils \
+	&& yum-config-manager --enable remi-php73
 
 # -----------------------------------------------------------------------------
 # Apache + PHP
@@ -26,16 +26,17 @@ RUN	yum -y update \
 	gcc-c++ \
 	httpd \
 	mod_ssl \
-	php71w \
-	php71w-cli \
-	php71w-devel \
-	php71w-mysql \
-	php71w-pdo \
-	php71w-mbstring \
-	php71w-soap \
-	php71w-gd \
-	php71w-xml \
-	php71w-pecl-apcu \
+	php \
+	php-cli \
+	php-devel \
+	php-mysql \
+	php-pdo \
+	php-mbstring \
+	php-soap \
+	php-gd \
+	php-xml \
+	php-pecl-apcu \
+	php-pear \
 	unzip \
 	libXrender fontconfig libXext urw-fonts \
 	ImageMagick ImageMagick-devel \
@@ -192,7 +193,7 @@ RUN cd /usr/lib64/php/modules \
 	&& rm ioncube_loaders_lin_x86-64.tar.gz
 	
 RUN echo '[Ioncube]' >> /etc/php.ini
-RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube/ioncube_loader_lin_7.1.so' >> /etc/php.ini 
+RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube/ioncube_loader_lin_7.3.so' >> /etc/php.ini 
 
 # -----------------------------------------------------------------------------
 # ImageMagick
