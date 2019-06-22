@@ -11,4 +11,4 @@ fi
 
 docker build -t $namespace/centos-apache-php:$tag .
 
-#docker push $namespace/centos-apache-php:$tag 	
+docker push $namespace/centos-apache-php:$tag 	
