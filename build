@@ -3,6 +3,9 @@
 read -p "Docker namespace (naqoda): " namespace
 namespace=${namespace:-naqoda}
 
+read -p "Push (y/n): " pushit
+pushit=${pushit:-n}
+
 tag=$(git symbolic-ref --short HEAD)
 
 if [[ $tag == 'master' ]]; then
@@ -11,4 +14,6 @@ fi
 
 docker build -t $namespace/centos-apache-php:$tag .
 
-docker push $namespace/centos-apache-php:$tag 	
+if [[ $pushit == 'y' ]]; then
+	docker push $namespace/centos-apache-php:$tag
+fi	
