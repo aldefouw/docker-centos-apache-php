@@ -172,7 +172,7 @@ RUN { \
 RUN sed -i \
 	-e 's~^;date.timezone =$~date.timezone = UTC~g' \
 	-e 's~^;user_ini.filename =$~user_ini.filename =~g' \
-	-e 's~^; max_input_vars.*$~max_input_vars = 20000~g' \
+	-e 's~^;.*max_input_vars.*$~max_input_vars = 20000~g' \
 	-e 's~^;always_populate_raw_post_data = -1$~always_populate_raw_post_data = -1~g' \
 	-e 's~^upload_max_filesize.*$~upload_max_filesize = 8M~g' \
 	-e 's~^post_max_size.*$~post_max_size = 12M~g' \
