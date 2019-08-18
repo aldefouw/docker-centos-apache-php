@@ -12,7 +12,7 @@ if [[ $tag == 'master' ]]; then
 	tag='latest'
 fi
 
-docker build -t $namespace/centos-apache-php:$tag .
+docker build --no-cache -t $namespace/centos-apache-php:$tag .
 
 if [[ $pushit == 'y' ]]; then
 	docker push $namespace/centos-apache-php:$tag

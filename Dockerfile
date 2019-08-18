@@ -37,9 +37,10 @@ RUN	yum -y update \
 	php-xml \
 	php-pecl-apcu \
 	php-pear \
+	php-zip \
 	unzip \
 	libXrender fontconfig libXext urw-fonts \
-	ImageMagick ImageMagick-devel \
+	libjpeg libjpeg-devel libpng libpng-devel \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
@@ -79,7 +80,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 #	&& ./configure \
 #	&& make \
 #	&& make install
-	
+
 #RUN pecl install channel://pecl.php.net/rdkafka-2.0.0 \
 #	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
 
@@ -132,9 +133,9 @@ RUN sed -i \
 RUN sed -i \
 	-e 's~^LoadModule suexec_module ~#LoadModule suexec_module ~g' \
 	-e 's~^LoadModule authn_~#LoadModule authn_~g' \
- 	-e 's~^LoadModule authz_dbd_module ~#LoadModule authz_dbd_module ~g' \
- 	-e 's~^LoadModule authz_dbm_module ~#LoadModule authz_dbm_module ~g' \
- 	-e 's~^LoadModule authz_groupfile_module ~#LoadModule authz_groupfile_module ~g' \
+	-e 's~^LoadModule authz_dbd_module ~#LoadModule authz_dbd_module ~g' \
+	-e 's~^LoadModule authz_dbm_module ~#LoadModule authz_dbm_module ~g' \
+	-e 's~^LoadModule authz_groupfile_module ~#LoadModule authz_groupfile_module ~g' \
 	-e 's~^LoadModule substitute_module ~#LoadModule substitute_module ~g' \
 	-e 's~^LoadModule cache_disk_module ~#LoadModule cache_disk_module ~g' \
 	-e 's~^LoadModule dbd_module ~#LoadModule dbd_module ~g' \
@@ -159,11 +160,11 @@ RUN sed -i \
 # Limit process for the application user
 # -----------------------------------------------------------------------------
 RUN { \
-		echo ''; \
-		echo $'apache\tsoft\tnproc\t30'; \
-		echo $'apache\thard\tnproc\t50'; \
-		echo $'app\tsoft\tnproc\t30'; \
-		echo $'app\thard\tnproc\t50'; \
+	echo ''; \
+	echo $'apache\tsoft\tnproc\t30'; \
+	echo $'apache\thard\tnproc\t50'; \
+	echo $'app\tsoft\tnproc\t30'; \
+	echo $'app\thard\tnproc\t50'; \
 	} >> /etc/security/limits.conf
 
 # -----------------------------------------------------------------------------
@@ -191,15 +192,9 @@ RUN cd /usr/lib64/php/modules \
 	&& curl -fSLo ioncube_loaders_lin_x86-64.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
 	&& tar -xvf ioncube_loaders_lin_x86-64.tar.gz \
 	&& rm ioncube_loaders_lin_x86-64.tar.gz
-	
+
 RUN echo '[Ioncube]' >> /etc/php.ini
 RUN echo 'zend_extension = /usr/lib64/php/modules/ioncube/ioncube_loader_lin_7.3.so' >> /etc/php.ini 
-
-# -----------------------------------------------------------------------------
-# ImageMagick
-# -----------------------------------------------------------------------------
-RUN echo '' | pecl install imagick
-RUN echo "extension=imagick.so" > /etc/php.d/imagick.ini
 
 # -----------------------------------------------------------------------------
 # https://wkhtmltopdf.org
@@ -225,12 +220,38 @@ RUN curl -fSLo /tmp/phpredis-master.zip https://github.com/phpredis/phpredis/arc
 	&& cp /tmp/phpredis-master/modules/redis.so /usr/lib64/php/modules/ \	
 	&& cp /tmp/phpredis-master/rpm/redis.ini /etc/php.d/ \
 	&& rm -fR /tmp/phpredis-master*
-	
+
 # -----------------------------------------------------------------------------
 # Unoconv
 # -----------------------------------------------------------------------------
 RUN yum -y install unoconv libreoffice-headless
-	
+
+# -----------------------------------------------------------------------------
+# ImageMagick
+# -----------------------------------------------------------------------------
+RUN cd /tmp \
+	&& curl -fSLo ghostscript-9.27.tar.gz https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs927/ghostscript-9.27.tar.gz \
+	&& tar -xf ghostscript-9.27.tar.gz \
+	&& rm ghostscript-9.27.tar.gz \
+	&& cd ghostscript-9.27 \
+	&& ./configure --prefix=/usr \
+	&& make --quiet \
+	&& make install \
+	&& ln -s /usr/bin/gs /usr/bin/ghostscript \
+	&& rm -R /tmp/ghostscript-9.27
+RUN cd /tmp \
+	&& curl -fSLo ImageMagick.tar.gz https://github.com/ImageMagick/ImageMagick/archive/7.0.8-60.tar.gz \
+	&& tar -xf ImageMagick.tar.gz \
+	&& rm ImageMagick.tar.gz \
+	&& cd ImageMagick-7.0.8-60 \
+	&& ./configure \
+	&& make --quiet \
+	&& make install \
+	&& rm -R /tmp/ImageMagick-7.0.8-60
+RUN echo '' | pecl install imagick
+RUN echo "extension=imagick.so" > /etc/php.d/imagick.ini
+RUN rm -R /tmp/pear
+
 # -----------------------------------------------------------------------------
 # PDFtk
 # https://www.linuxglobal.com/pdftk-works-on-centos-7/
@@ -238,7 +259,7 @@ RUN yum -y install unoconv libreoffice-headless
 COPY rpm/pdftk-2.02-1.el7.x86_64.rpm /tmp
 RUN yum -y localinstall /tmp/pdftk-2.02-1.el7.x86_64.rpm && \
 	rm /tmp/pdftk-2.02-1.el7.x86_64.rpm
-	
+
 # -----------------------------------------------------------------------------
 # Add default service users
 # -----------------------------------------------------------------------------
@@ -271,6 +292,7 @@ RUN chown -R app:${gid} /var/www/app \
 RUN yum -y remove \
 	gcc \
 	gcc-c++ \
+	$(rpm -qa "*-devel") \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
