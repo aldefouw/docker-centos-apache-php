@@ -3,7 +3,9 @@
 read -p "Docker namespace (naqoda): " namespace
 namespace=${namespace:-naqoda}
 
-read -p "Push (y/n): " pushit
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+read -p "Push to $branch (y/n): " pushit
 pushit=${pushit:-n}
 
 tag=$(git symbolic-ref --short HEAD)
