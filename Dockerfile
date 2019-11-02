@@ -56,40 +56,6 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 	&& echo "NETWORKING=yes" > /etc/sysconfig/network
 
 # -----------------------------------------------------------------------------
-# Install DB2 PDO driver
-# -----------------------------------------------------------------------------
-#ENV DB2EXPRESSC_URL https://s3-ap-southeast-1.amazonaws.com/naqoda/downloads/ibm_data_server_driver_package_linuxx64_v10.5.tar.gz
-#ENV IBM_DB_HOME /opt/ibm/dsdriver
-#ENV LD_LIBRARY_PATH /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64/clidriver/lib
-
-#RUN mkdir /opt/ibm \
-#    && curl -fSLo /opt/ibm/expc.tar.gz $DB2EXPRESSC_URL  \
-#    && cd /opt/ibm && tar xf expc.tar.gz \
-#    && rm /opt/ibm/expc.tar.gz \
-#	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/ibm_db2_5.3.6_nts.so /usr/lib64/php/modules/ibm_db2.so \
-#	&& cp $IBM_DB_HOME/php_driver/linuxamd64/php64/pdo_ibm_5.3.6_nts.so /usr/lib64/php/modules/pdo_ibm.so \
-#	&& cd /opt/ibm/dsdriver/odbc_cli_driver/linuxamd64 \
-#   && tar xf ibm_data_server_driver_for_odbc_cli.tar.gz \
-#	&& echo 'extension=ibm_db2.so' > /etc/php.d/pdo_db2.ini \
-#	&& echo 'extension=pdo_ibm.so' >> /etc/php.d/pdo_db2.ini
-
-#COPY modules/php71/* /usr/lib64/php/modules/
-
-# -----------------------------------------------------------------------------
-# Build Kafka PHP extension
-# -----------------------------------------------------------------------------
-#RUN curl -fSLo /tmp/librdkafka-master.zip https://github.com/edenhill/librdkafka/archive/master.zip \
-#	&& cd /tmp \
-#	&& unzip librdkafka-master.zip  \
-#	&& cd librdkafka-master \
-#	&& ./configure \
-#	&& make \
-#	&& make install
-
-#RUN pecl install channel://pecl.php.net/rdkafka-2.0.0 \
-#	&& echo 'extension=rdkafka.so' > /etc/php.d/kafka.ini
-
-# -----------------------------------------------------------------------------
 # Global Apache configuration changes
 # Disable Apache directory indexes
 # Disable Apache language based content negotiation
