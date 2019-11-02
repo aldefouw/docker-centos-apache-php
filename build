@@ -5,7 +5,7 @@ namespace=${namespace:-naqoda}
 
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-read -p "Push to $branch (y/n): " pushit
+read -p "Push to $branch (n/y): " pushit
 pushit=${pushit:-n}
 
 tag=$(git symbolic-ref --short HEAD)

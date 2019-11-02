@@ -1,12 +1,12 @@
 # =============================================================================
 # naqoda/centos-apache-php
 #
-# CentOS-7, Apache 2.4, PHP 7.3, Ioncube, MYSQL
+# CentOS-8, Apache 2.4, PHP 7.3, Ioncube, MYSQL
 # 
 # =============================================================================
-FROM centos:centos7
+FROM centos:centos8
 
-MAINTAINER Naqoda <info@naqoda.com>
+LABEL maintainer="Naqoda <info@naqoda.com>"
 
 ARG uid=1000
 ARG gid=1000
@@ -14,8 +14,11 @@ ARG gid=1000
 # -----------------------------------------------------------------------------
 # Import the RPM GPG keys for Repositories
 # -----------------------------------------------------------------------------
-RUN yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm epel-release yum-utils \
-	&& yum-config-manager --enable remi-php73
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+	&& yum install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm epel-release yum-utils \
+	&& yum module enable php:remi-7.3/devel -y \
+	&& yum config-manager --set-enabled PowerTools \
+	&& dnf group install -y "Development Tools"
 
 # -----------------------------------------------------------------------------
 # Apache + PHP
@@ -41,6 +44,8 @@ RUN	yum -y update \
 	unzip \
 	libXrender fontconfig libXext urw-fonts \
 	libjpeg libjpeg-devel libpng libpng-devel \
+	ImageMagick ImageMagick-devel ghostscript \
+	glibc-langpack-en \
 	&& rm -rf /var/cache/yum/* \
 	&& yum clean all
 
@@ -91,6 +96,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime \
 # Disable all Apache modules and enable the minimum
 # Enable ServerStatus access via /_httpdstatus to local client
 # Apache tuning
+# The mpm module (prefork.c) is not supported by mod_http2
 # -----------------------------------------------------------------------------
 RUN sed -i \
 	-e 's~^ServerSignature On$~ServerSignature Off~g' \
@@ -110,13 +116,12 @@ RUN sed -i \
 	-e 's~^AddLanguage \(.*\)$~#AddLanguage \1~g' \
 	-e '/#<Location \/server-status>/,/#<\/Location>/ s~^#~~' \
 	-e '/<Location \/server-status>/,/<\/Location>/ s~Allow from .example.com~Allow from localhost 127.0.0.1~' \
-	-e 's~^StartServers \(.*\)$~StartServers 3~g' \
-	-e 's~^MinSpareServers \(.*\)$~MinSpareServers 3~g' \
-	-e 's~^MaxSpareServers \(.*\)$~MaxSpareServers 3~g' \
-	-e 's~^ServerLimit \(.*\)$~ServerLimit 10~g' \
-	-e 's~^MaxClients \(.*\)$~MaxClients 10~g' \
-	-e 's~^MaxRequestsPerChild \(.*\)$~MaxRequestsPerChild 1000~g' \
 	/etc/httpd/conf/httpd.conf
+
+RUN sed -i \
+	-e 's~^LoadModule~#LoadModule~g' \
+	-e 's~^#LoadModule mpm_prefork_module~LoadModule mpm_prefork_module~g' \
+	/etc/httpd/conf.modules.d/00-mpm.conf
 
 RUN sed -i \
 	-e 's~^\(LoadModule .*\)$~#\1~g' \
@@ -148,6 +153,14 @@ RUN sed -i \
 RUN sed -i \
 	-e 's~^\(LoadModule .*\)$~#\1~g' \
 	/etc/httpd/conf.modules.d/01-cgi.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/10-h2.conf
+
+RUN sed -i \
+	-e 's~^\(LoadModule .*\)$~#\1~g' \
+	/etc/httpd/conf.modules.d/10-proxy_h2.conf
 
 # -----------------------------------------------------------------------------
 # Disable the default SSL Virtual Host
@@ -190,7 +203,7 @@ RUN sed -i \
 # -----------------------------------------------------------------------------
 RUN cd /usr/lib64/php/modules \
 	&& curl -fSLo ioncube_loaders_lin_x86-64.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz \
-	&& tar -xvf ioncube_loaders_lin_x86-64.tar.gz \
+	&& tar -xf ioncube_loaders_lin_x86-64.tar.gz \
 	&& rm ioncube_loaders_lin_x86-64.tar.gz
 
 RUN echo '[Ioncube]' >> /etc/php.ini
@@ -224,36 +237,20 @@ RUN curl -fSLo /tmp/phpredis-master.zip https://github.com/phpredis/phpredis/arc
 # -----------------------------------------------------------------------------
 # Unoconv
 # -----------------------------------------------------------------------------
-RUN yum -y install unoconv libreoffice-headless
+RUN yum -y install libreoffice-headless libreoffice-pyuno \
+	&& cd /tmp && git clone https://github.com/dagwieers/unoconv.git \
+	&& mv /tmp/unoconv/unoconv /usr/bin
 
 # -----------------------------------------------------------------------------
 # ImageMagick
+# with dependencies: ImageMagick ImageMagick-devel ghostscript
 # -----------------------------------------------------------------------------
-RUN cd /tmp \
-	&& curl -fSLo ghostscript-9.27.tar.gz https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs927/ghostscript-9.27.tar.gz \
-	&& tar -xf ghostscript-9.27.tar.gz \
-	&& rm ghostscript-9.27.tar.gz \
-	&& cd ghostscript-9.27 \
-	&& ./configure --prefix=/usr \
-	&& make --quiet \
-	&& make install \
-	&& ln -s /usr/bin/gs /usr/bin/ghostscript \
-	&& rm -R /tmp/ghostscript-9.27
-RUN cd /tmp \
-	&& curl -fSLo ImageMagick.tar.gz https://github.com/ImageMagick/ImageMagick/archive/7.0.8-60.tar.gz \
-	&& tar -xf ImageMagick.tar.gz \
-	&& rm ImageMagick.tar.gz \
-	&& cd ImageMagick-7.0.8-60 \
-	&& ./configure \
-	&& make --quiet \
-	&& make install \
-	&& rm -R /tmp/ImageMagick-7.0.8-60
 RUN echo '' | pecl install imagick
 RUN echo "extension=imagick.so" > /etc/php.d/imagick.ini
 RUN rm -R /tmp/pear
 
 # -----------------------------------------------------------------------------
-# PDFtk
+# PDFtk - Encrypt PDFs and merge Adobe forms
 # https://www.linuxglobal.com/pdftk-works-on-centos-7/
 # -----------------------------------------------------------------------------
 COPY rpm/pdftk-2.02-1.el7.x86_64.rpm /tmp
@@ -309,7 +306,6 @@ ENV	TERM xterm
 # -----------------------------------------------------------------------------
 # Set locale
 # -----------------------------------------------------------------------------
-RUN localedef -i en_GB -f UTF-8 en_GB.UTF-8
 ENV LANG en_GB.UTF-8
 
 # -----------------------------------------------------------------------------
