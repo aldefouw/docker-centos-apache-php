@@ -42,6 +42,7 @@ RUN	yum -y update \
 	php-pear \
 	php-zip \
 	unzip \
+	mariadb \
 	libXrender fontconfig libXext urw-fonts \
 	libjpeg libjpeg-devel libpng libpng-devel \
 	ImageMagick ImageMagick-devel ghostscript \
@@ -264,6 +265,7 @@ RUN yum -y remove \
 # -----------------------------------------------------------------------------
 ENV APACHE_SERVER_ALIAS "" 
 ENV	APACHE_SERVER_NAME app-1.local 
+ENV APACHE_MAX_REQUEST_WORKERS 256
 ENV	APP_HOME_DIR /var/www/app
 ENV	DATE_TIMEZONE UTC 
 ENV	HTTPD /usr/sbin/httpd 
