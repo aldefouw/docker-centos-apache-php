@@ -39,6 +39,7 @@ RUN	yum -y update \
 	php-pear \
 	php-zip \
 	unzip \
+	mysql \
 	libXrender fontconfig libXext urw-fonts \
 	libjpeg libjpeg-devel libpng libpng-devel \
 	&& rm -rf /var/cache/yum/* \
