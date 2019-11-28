@@ -328,4 +328,6 @@ EXPOSE 80 443
 # -----------------------------------------------------------------------------
 ADD index.php /var/www/app/public_html/index.php
 
+HEALTHCHECK NONE
+
 CMD ["/usr/sbin/httpd", "-DFOREGROUND"]
