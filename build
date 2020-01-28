@@ -5,8 +5,11 @@ namespace=${namespace:-naqoda}
 
 branch=$(git rev-parse --abbrev-ref HEAD)
 
-read -p "Push to $branch (y/n): " pushit
+read -p "Push to $branch (n/y): " pushit
 pushit=${pushit:-n}
+
+read -p "Use cache (y/n): " cache
+cache=${cache:-y}
 
 tag=$(git symbolic-ref --short HEAD)
 
@@ -14,8 +17,14 @@ if [[ $tag == 'master' ]]; then
 	tag='latest'
 fi
 
-docker build --no-cache -t $namespace/centos-apache-php:$tag .
+if [[ $cache == 'y' ]]; then
+	docker build -t $namespace/centos-apache-php:$tag .
+else
+	docker build --no-cache -t $namespace/centos-apache-php:$tag .
+fi	
+docker tag $namespace/centos-apache-php:$tag 411554581248.dkr.ecr.eu-west-2.amazonaws.com/$namespace/centos-apache-php:$tag
 
 if [[ $pushit == 'y' ]]; then
 	docker push $namespace/centos-apache-php:$tag
+	docker push 411554581248.dkr.ecr.eu-west-2.amazonaws.com/$namespace/centos-apache-php:$tag
 fi	
